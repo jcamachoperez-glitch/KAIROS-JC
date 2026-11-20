@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Kairos JC — Aprende a Invertir y Tradear</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans & Nunito -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Nunito"', 'sans-serif'],
+          },
+          colors: {
+            ink: '#1B1F3B',
+            invest: {
+              DEFAULT: '#12B886',
+              dark: '#0CA678',
+              soft: '#E6FCF5',
+              border: '#96F2D7'
+            },
+            trade: {
+              DEFAULT: '#FF6B2C',
+              dark: '#E8590C',
+              soft: '#FFF4E6',
+              border: '#FFC078'
+            },
+            prize: {
+              DEFAULT: '#FFC933',
+              dark: '#F59F00',
+              soft: '#FFF9DB'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #F4F6FA;
+      color: #1B1F3B;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Botones y tarjetas táctiles 3D estilo Duolingo */
+    .tactile-card {
+      border: 2px solid #E5E7EB;
+      border-bottom-width: 5px;
+      transition: transform 0.1s ease, border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .tactile-card:active:not(:disabled) {
+      transform: translateY(3px);
+      border-bottom-width: 2px;
+    }
+
+    .tactile-btn {
+      border-bottom-width: 4px;
+      transition: transform 0.1s ease, filter 0.15s ease, background-color 0.15s ease;
+    }
+    .tactile-btn:active:not(:disabled) {
+      transform: translateY(3px);
+      border-bottom-width: 1px;
+    }
+
+    /* Nodo circular del camino */
+    .path-node {
+      border-bottom-width: 6px;
+      transition: transform 0.12s ease, box-shadow 0.2s ease;
+    }
+    .path-node:active:not(:disabled) {
+      transform: translateY(4px);
+      border-bottom-width: 2px;
+    }
+
+    /* Animación flotante para etiqueta EMPEZAR */
+    @keyframes floatBounce {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+    .animate-float {
+      animation: floatBounce 1.8s ease-in-out infinite;
+    }
+
+    /* Anillo pulsante suave en nodo activo */
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.7; }
+      70% { transform: scale(1.22); opacity: 0; }
+      100% { transform: scale(1.22); opacity: 0; }
+    }
+    .pulse-ring {
+      animation: pulseRing 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+    }
+
+    /* Animación de entrada de pantalla */
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .screen-enter {
+      animation: fadeSlideIn 0.22s ease-out forwards;
+    }
+
+    /* Animación de panel inferior de feedback */
+    @keyframes slideUpPanel {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .feedback-enter {
+      animation: slideUpPanel 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Scrollbar limpio dentro del contenedor móvil */
+    .app-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+    .app-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .app-scroll::-webkit-scrollbar-thumb {
+      background: #E2E8F0;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start sm:justify-center sm:py-4">
+
+  <!-- Barra superior discreta para Testers y Evaluadores -->
+  <div class="w-full max-w-[440px] px-3 py-2 flex items-center justify-between gap-2 text-xs">
+    <div class="flex items-center gap-1.5">
+      <button id="btn-sound-toggle" onclick="toggleSound()" title="Activar o silenciar sonidos"
+        class="bg-white border border-gray-200 hover:bg-gray-50 text-ink font-semibold px-2.5 py-1.5 rounded-xl shadow-xs flex items-center gap-1 transition">
+        <span id="sound-icon">🔊</span>
+        <span class="hidden xs:inline">Sonido</span>
+      </button>
+
+      <button id="btn-tester-unlock" onclick="toggleTesterUnlock()"
+        class="bg-white border border-gray-200 hover:bg-gray-50 text-ink font-semibold px-2.5 py-1.5 rounded-xl shadow-xs flex items-center gap-1.5 transition">
+        <span id="tester-dot" class="w-2 h-2 rounded-full bg-gray-300"></span>
+        <span>Modo Tester: <strong id="tester-status-text">Normal</strong></span>
+      </button>
+    </div>
+
+    <button onclick="openFeedbackModal()"
+      class="bg-ink text-white hover:opacity-90 font-bold px-3 py-1.5 rounded-xl shadow-xs flex items-center gap-1.5 transition">
+      <span>💬</span>
+      <span>Feedback Tester</span>
+    </button>
+  </div>
+
+  <!-- Contenedor Principal Mobile-First (Simula teléfono elegante en escritorio, pantalla completa en móvil) -->
+  <main id="app-shell"
+    class="w-full max-w-[440px] flex-1 sm:flex-none sm:h-[810px] sm:max-h-[88vh] bg-white sm:rounded-[34px] sm:border-[3px] sm:border-gray-200/90 sm:shadow-[0_20px_50px_rgba(27,31,59,0.09)] flex flex-col overflow-hidden relative">
+    <!-- Las pantallas se renderizan dinámicamente aquí -->
+  </main>
+
+  <!-- Toast flotante para notificaciones limpias (sin alert) -->
+  <div id="toast-banner"
+    class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-ink text-white text-sm font-bold px-4 py-2.5 rounded-2xl shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 flex items-center gap-2">
+    <span id="toast-icon">✅</span>
+    <span id="toast-text">Mensaje</span>
+  </div>
+
+  <!-- Modal de Confirmación de Salida de Lección (sin confirm nativo) -->
+  <div id="exit-modal" class="fixed inset-0 z-50 bg-ink/50 backdrop-blur-[2px] hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-[360px] rounded-3xl p-6 border-2 border-gray-100 shadow-2xl text-center screen-enter">
+      <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-amber-50 flex items-center justify-center text-3xl">⏸️</div>
+      <h3 class="font-display font-extrabold text-xl text-ink mb-1.5">¿Salir de la lección?</h3>
+      <p class="text-sm text-gray-500 mb-6">Si sales ahora, perderás el progreso de esta lección en curso.</p>
+      <div class="flex flex-col gap-2.5">
+        <button onclick="closeExitModal()"
+          class="tactile-btn w-full py-3 rounded-2xl font-display font-extrabold text-white bg-invest border-invest-dark text-base">
+          Seguir aprendiendo
+        </button>
+        <button onclick="confirmExitLesson()"
+          class="w-full py-2.5 rounded-2xl font-bold text-gray-500 hover:text-ink hover:bg-gray-100 text-sm transition">
+          Salir al camino
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Feedback para Testers -->
+  <div id="feedback-modal" class="fixed inset-0 z-50 bg-ink/50 backdrop-blur-[2px] hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-[400px] rounded-3xl p-6 border-2 border-gray-100 shadow-2xl screen-enter max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🧪</span>
+          <h3 class="font-display font-extrabold text-lg text-ink">Tu opinión sobre Kairos JC</h3>
+        </div>
+        <button onclick="closeFeedbackModal()" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-lg">×</button>
+      </div>
+
+      <p class="text-xs text-gray-500 mb-4 leading-relaxed">
+        ¡Gracias por probar el prototipo! Cuéntanos qué te pareció la interfaz y las lecciones para mejorar antes del lanzamiento.
+      </p>
+
+      <!-- Calificación 1 a 5 -->
+      <div class="mb-4">
+        <label class="block text-xs font-extrabold uppercase tracking-wider text-ink mb-2">
+          1. ¿Qué tanto te gustó la interfaz y facilidad de uso?
+        </label>
+        <div class="grid grid-cols-5 gap-2" id="rating-buttons">
+          <button type="button" onclick="setFeedbackRating(1)" data-rate="1" class="rate-btn tactile-card py-2.5 rounded-xl font-display font-extrabold text-sm bg-white text-ink">1 😕</button>
+          <button type="button" onclick="setFeedbackRating(2)" data-rate="2" class="rate-btn tactile-card py-2.5 rounded-xl font-display font-extrabold text-sm bg-white text-ink">2 😐</button>
+          <button type="button" onclick="setFeedbackRating(3)" data-rate="3" class="rate-btn tactile-card py-2.5 rounded-xl font-display font-extrabold text-sm bg-white text-ink">3 🙂</button>
+          <button type="button" onclick="setFeedbackRating(4)" data-rate="4" class="rate-btn tactile-card py-2.5 rounded-xl font-display font-extrabold text-sm bg-white text-ink">4 😄</button>
+          <button type="button" onclick="setFeedbackRating(5)" data-rate="5" class="rate-btn tactile-card py-2.5 rounded-xl font-display font-extrabold text-sm bg-prize-soft border-prize text-ink">5 🤩</button>
+        </div>
+      </div>
+
+      <!-- Curso favorito -->
+      <div class="mb-4">
+        <label class="block text-xs font-extrabold uppercase tracking-wider text-ink mb-2">
+          2. ¿Qué ruta te interesa más aprender?
+        </label>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" onclick="setFeedbackCourse('Invertir')" data-fcourse="Invertir"
+            class="fcourse-btn tactile-card py-2 px-2 rounded-xl font-bold text-xs bg-invest-soft border-invest text-ink">
+            🌱 Invertir
+          </button>
+          <button type="button" onclick="setFeedbackCourse('Tradear')" data-fcourse="Tradear"
+            class="fcourse-btn tactile-card py-2 px-2 rounded-xl font-bold text-xs bg-white text-ink">
+            🕯️ Tradear
+          </button>
+          <button type="button" onclick="setFeedbackCourse('Ambos')" data-fcourse="Ambos"
+            class="fcourse-btn tactile-card py-2 px-2 rounded-xl font-bold text-xs bg-white text-ink">
+            🚀 Ambos
+          </button>
+        </div>
+      </div>
+
+      <!-- Comentario -->
+      <div class="mb-4">
+        <label for="feedback-comment" class="block text-xs font-extrabold uppercase tracking-wider text-ink mb-1.5">
+          3. ¿Qué fue lo que más te gustó o qué mejorarías?
+        </label>
+        <textarea id="feedback-comment" rows="3"
+          placeholder="Ej: Me encantó lo claro que explican las velas japonesas, agregaría más gráficos..."
+          class="w-full rounded-2xl border-2 border-gray-200 focus:border-ink focus:outline-none p-3 text-sm text-ink resize-none"></textarea>
+      </div>
+
+      <!-- Vista previa del texto a copiar -->
+      <div class="bg-gray-50 border border-gray-200 rounded-2xl p-3 mb-4">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[11px] font-bold text-gray-400 uppercase">Resumen listo para WhatsApp</span>
+        </div>
+        <p id="feedback-preview" class="text-xs text-ink whitespace-pre-line font-medium"></p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <button onclick="copyFeedbackForWhatsApp()"
+          class="tactile-btn w-full py-3.5 rounded-2xl font-display font-extrabold text-white bg-invest border-invest-dark text-sm flex items-center justify-center gap-2">
+          <span>📋</span>
+          <span>Copiar opinión para WhatsApp</span>
+        </button>
+        <button onclick="closeFeedbackModal()"
+          class="w-full py-2 rounded-xl font-bold text-xs text-gray-400 hover:text-ink transition">
+          Cerrar ventana
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. SINTETIZADOR DE SONIDO SUAVE (WEB AUDIO API)
+    // =========================================================================
+    const SoundFX = {
+      ctx: null,
+      enabled: true,
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      playTone(freq, type, duration, delay = 0, gainVal = 0.12) {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime + delay;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(gainVal, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + duration + 0.02);
+        } catch (e) { /* Silencioso si el navegador bloquea audio sin gesto */ }
+      },
+      tap() {
+        this.playTone(520, 'sine', 0.06, 0, 0.06);
+      },
+      correct() {
+        // Acorde ascendente limpio estilo Duolingo (C5 -> E5 -> G5)
+        this.playTone(523.25, 'triangle', 0.14, 0, 0.13);
+        this.playTone(659.25, 'triangle', 0.14, 0.07, 0.13);
+        this.playTone(783.99, 'triangle', 0.24, 0.14, 0.14);
+      },
+      wrong() {
+        // Dos notas descendentes suaves, amigables y no estridentes
+        this.playTone(330, 'sine', 0.16, 0, 0.11);
+        this.playTone(261.63, 'sine', 0.24, 0.12, 0.11);
+      },
+      complete() {
+        // Fanfarria corta de celebración
+        this.playTone(523.25, 'triangle', 0.14, 0, 0.14);
+        this.playTone(659.25, 'triangle', 0.14, 0.09, 0.14);
+        this.playTone(783.99, 'triangle', 0.14, 0.18, 0.14);
+        this.playTone(1046.50, 'triangle', 0.36, 0.27, 0.16);
+      }
+    };
+
+    // =========================================================================
+    // 2. ILUSTRACIONES SVG DIDÁCTICAS PARA PREGUNTAS VISUALES
+    // =========================================================================
+    function getDiagramSVG(type) {
+      if (!type) return '';
+
+      const diagrams = {
+        // Vela verde con cuerpo largo y mechas cortas (Boceto exacto Pantalla 3)
+        green_long_candle: `
+          <div class="my-3 bg-gray-50/90 border-2 border-gray-100 rounded-2xl p-4 flex flex-col items-center">
+            <svg width="160" height="128" viewBox="0 0 160 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Líneas de guía suaves -->
+              <line x1="20" y1="26" x2="140" y2="26" stroke="#E5E7EB" stroke-dasharray="4 4" stroke-width="1.5"/>
+              <line x1="20" y1="64" x2="140" y2="64" stroke="#E5E7EB" stroke-dasharray="4 4" stroke-width="1.5"/>
+              <line x1="20" y1="102" x2="140" y2="102" stroke="#E5E7EB" stroke-dasharray="4 4" stroke-width="1.5"/>
+              <!-- Mecha superior corta -->
+              <line x1="80" y1="14" x2="80" y2="26" stroke="#0CA678" stroke-width="3.5" stroke-linecap="round"/>
+              <!-- Cuerpo largo verde -->
+              <rect x="62" y="26" width="36" height="76" rx="6" fill="#12B886" stroke="#0CA678" stroke-width="2.5"/>
+              <!-- Mecha inferior corta -->
+              <line x1="80" y1="102" x2="80" y2="114" stroke="#0CA678" stroke-width="3.5" stroke-linecap="round"/>
+              <!-- Etiquetas didácticas -->
+              <text x="106" y="31" fill="#0CA678" font-size="10" font-weight="800" font-family="Plus Jakarta Sans">Cierre</text>
+              <text x="106" y="103" fill="#0CA678" font-size="10" font-weight="800" font-family="Plus Jakarta Sans">Apertura</text>
+            </svg>
+          </div>
+        `,
+        // Anatomía de las 4 partes de una vela japonesa
+        candle_anatomy: `
+          <div class="my-3 bg-gray-50/90 border-2 border-gray-100 rounded-2xl p-3 flex flex-col items-center">
+            <svg width="230" height="124" viewBox="0 0 230 124" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="115" y1="12" x2="115" y2="34" stroke="#0CA678" stroke-width="3" stroke-linecap="round"/>
+              <rect x="99" y="34" width="32" height="56" rx="5" fill="#12B886" stroke="#0CA678" stroke-width="2"/>
+              <line x1="115" y1="90" x2="115" y2="112" stroke="#0CA678" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="115" cy="12" r="3" fill="#1B1F3B"/>
+              <text x="126" y="16" fill="#1B1F3B" font-size="10" font-weight="700" font-family="Plus Jakarta Sans">Máximo</text>
+              <text x="44" y="38" fill="#1B1F3B" font-size="10" font-weight="700" font-family="Plus Jakarta Sans">Cierre</text>
+              <line x1="78" y1="35" x2="97" y2="35" stroke="#94A3B8" stroke-width="1.5"/>
+              <text x="32" y="92" fill="#1B1F3B" font-size="10" font-weight="700" font-family="Plus Jakarta Sans">Apertura</text>
+              <line x1="78" y1="89" x2="97" y2="89" stroke="#94A3B8" stroke-width="1.5"/>
+              <circle cx="115" cy="112" r="3" fill="#1B1F3B"/>
+              <text x="126" y="115" fill="#1B1F3B" font-size="10" font-weight="700" font-family="Plus Jakarta Sans">Mínimo</text>
+            </svg>
+          </div>
+        `,
+        // Vela roja con mecha inferior larga (rechazo comprador)
+        red_hammer_candle: `
+          <div class="my-3 bg-gray-50/90 border-2 border-gray-100 rounded-2xl p-3 flex flex-col items-center">
+            <svg width="190" height="124" viewBox="0 0 190 124" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="95" y1="14" x2="95" y2="22" stroke="#E03131" stroke-width="3" stroke-linecap="round"/>
+              <rect x="79" y="22" width="32" height="28" rx="5" fill="#FF6B6B" stroke="#E03131" stroke-width="2"/>
+              <line x1="95" y1="50" x2="95" y2="112" stroke="#E03131" stroke-width="3.5" stroke-linecap="round"/>
+              <path d="M105 98 L122 86" stroke="#12B886" stroke-width="2" stroke-linecap="round"/>
+              <text x="125" y="88" fill="#0CA678" font-size="10" font-weight="800" font-family="Plus Jakarta Sans">Rechazo</text>
+              <text x="125" y="100" fill="#0CA678" font-size="10" font-weight="800" font-family="Plus Jakarta Sans">comprador</text>
+            </svg>
+          </div>
+        `,
+        // Soporte y resistencia
+        support_resistance: `
+          <div class="my-3 bg-gray-50/90 border-2 border-gray-100 rounded-2xl p-3 flex flex-col items-center">
+            <svg width="240" height="118" viewBox="0 0 240 118" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Resistencia -->
+              <line x1="16" y1="22" x2="224" y2="22" stroke="#FF6B2C" stroke-width="2.5" stroke-dasharray="5 4"/>
+              <text x="18" y="15" fill="#E8590C" font-size="9.5" font-weight="800" font-family="Plus Jakarta Sans">RESISTENCIA (Techo)</text>
+              <!-- Precio rebotando -->
+              <polyline points="24,88 58,26 92,92 132,26 168,90 212,44" fill="none" stroke="#1B1F3B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- Soporte -->
+              <line x1="16" y1="95" x2="224" y2="95" stroke="#12B886" stroke-width="2.5" stroke-dasharray="5 4"/>
+              <text x="18" y="110" fill="#0CA678" font-size="9.5" font-weight="800" font-family="Plus Jakarta Sans">SOPORTE (Piso)</text>
+            </svg>
+          </div>
+        `,
+        // Tendencia alcista
+        uptrend: `
+          <div class="my-3 bg-gray-50/90 border-2 border-gray-100 rounded-2xl p-3 flex flex-col items-center">
+            <svg width="240" height="114" viewBox="0 0 240 114" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polyline points="22,96 64,62 90,78 136,38 162,54 214,16" fill="none" stroke="#12B886" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="64" cy="62" r="4" fill="#1B1F3B"/>
+              <circle cx="136" cy="38" r="4" fill="#1B1F3B"/>
+              <circle cx="214" cy="16" r="4.5" fill="#12B886"/>
+              <circle cx="90" cy="78" r="4" fill="#FF6B2C"/>
+              <circle cx="162" cy="54" r="4" fill="#FF6B2C"/>
+              <text x="128" y="98" fill="#1B1F3B" font-size="9.5" font-weight="700" font-family="Plus Jakarta Sans">Máximos y mínimos crecientes</text>
+            </svg>
+          </div>
+        `,
+        // Interés compuesto
+        compound_growth: `
+          <div class="my-3 bg-gray-50/90 border-2 border-gray-100 rounded-2xl p-3 flex flex-col items-center">
+            <svg width="235" height="112" viewBox="0 0 235 112" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Línea lineal -->
+              <line x1="22" y1="92" x2="210" y2="62" stroke="#94A3B8" stroke-width="2.5" stroke-dasharray="4 4"/>
+              <!-- Curva exponencial -->
+              <path d="M22 92 Q 115 84, 210 18" fill="none" stroke="#12B886" stroke-width="3.5" stroke-linecap="round"/>
+              <circle cx="210" cy="18" r="5" fill="#FFC933" stroke="#1B1F3B" stroke-width="2"/>
+              <text x="122" y="24" fill="#0CA678" font-size="9.5" font-weight="800" font-family="Plus Jakarta Sans">Interés compuesto</text>
+              <text x="135" y="84" fill="#64748B" font-size="9" font-weight="700" font-family="Plus Jakarta Sans">Ahorro simple</text>
+            </svg>
+          </div>
+        `
+      };
+
+      return diagrams[type] || '';
+    }
+
+    // =========================================================================
+    // 3. BASE DE DATOS DE CURSOS Y 60 PREGUNTAS (3 POR LECCIÓN)
+    // =========================================================================
+    const COURSES = {
+      invertir: {
+        id: 'invertir',
+        name: 'Invertir',
+        subtitle: 'Ahorro, riesgo y fondos',
+        unitTitle: 'Unidad 1 · Fundamentos de Inversión',
+        unitDesc: 'Construye tu patrimonio paso a paso, sin prisas ni trucos.',
+        color: '#12B886',
+        darkColor: '#0CA678',
+        softBg: '#E6FCF5',
+        lessons: [
+          {
+            id: 'inv-1',
+            title: 'Qué es invertir',
+            summary: 'Poner tu dinero a trabajar, y por qué no es un atajo para hacerse rico',
+            icon: '🌱',
+            questions: [
+              {
+                q: '¿Cuál es el objetivo principal de invertir tu dinero?',
+                options: [
+                  'Poner tu dinero a trabajar para que crezca con el tiempo',
+                  'Hacerte rico de la noche a la mañana sin esfuerzo',
+                  'Guardarlo debajo del colchón sin ningún movimiento'
+                ],
+                correct: 'Poner tu dinero a trabajar para que crezca con el tiempo',
+                explain: 'Invertir consiste en destinar capital a activos productivos para que generen rendimientos a lo largo del tiempo.'
+              },
+              {
+                q: '¿Por qué invertir NO es un atajo mágico para hacerse rico rápido?',
+                options: [
+                  'Porque construir patrimonio requiere tiempo, constancia y asumir riesgos controlados',
+                  'Porque las inversiones siempre dan exactamente el mismo porcentaje fijo cada día',
+                  'Porque solo las personas millonarias pueden abrir una cuenta de inversión'
+                ],
+                correct: 'Porque construir patrimonio requiere tiempo, constancia y asumir riesgos controlados',
+                explain: 'La verdadera creación de riqueza financiera se apoya en la disciplina, el tiempo y una gestión prudente del riesgo.'
+              },
+              {
+                q: '¿Qué ocurre cuando inviertes en una empresa o fondo productivo?',
+                options: [
+                  'Tu capital financia actividades reales que generan valor a futuro',
+                  'Tu dinero desaparece del sistema financiero hasta que lo pidas',
+                  'El banco te regala dinero nuevo sin que exista actividad económica'
+                ],
+                correct: 'Tu capital financia actividades reales que generan valor a futuro',
+                explain: 'Al invertir, participas en el crecimiento de empresas o proyectos reales que producen bienes y servicios.'
+              }
+            ]
+          },
+          {
+            id: 'inv-2',
+            title: 'Ahorrar vs. invertir',
+            summary: 'Cuándo conviene cada uno',
+            icon: '🏦',
+            questions: [
+              {
+                q: '¿Para qué objetivo conviene más AHORRAR en lugar de invertir?',
+                options: [
+                  'Para tu fondo de emergencia o un gasto dentro de 3 meses',
+                  'Para tu jubilación dentro de 25 años',
+                  'Para hacer crecer un capital que no necesitas en 10 años'
+                ],
+                correct: 'Para tu fondo de emergencia o un gasto dentro de 3 meses',
+                explain: 'El dinero que necesitarás pronto debe estar seguro y disponible de inmediato, sin exponerse a caídas temporales.'
+              },
+              {
+                q: '¿Cuál es la principal desventaja de solo ahorrar a largo plazo?',
+                options: [
+                  'El dinero no crece y pierde valor frente al aumento de precios',
+                  'El banco te cobra impuestos por cada billete guardado en casa',
+                  'Es imposible retirar el dinero ahorrado después de 5 años'
+                ],
+                correct: 'El dinero no crece y pierde valor frente al aumento de precios',
+                explain: 'El ahorro protege el monto nominal, pero sin rendimiento pierde poder adquisitivo con los años.'
+              },
+              {
+                q: 'Antes de empezar a invertir, ¿qué recomiendan las finanzas sanas?',
+                options: [
+                  'Tener un colchón de ahorro para imprevistos',
+                  'Pedir un préstamo personal grande para invertirlo todo',
+                  'Vender todas tus pertenencias para comprar una sola acción'
+                ],
+                correct: 'Tener un colchón de ahorro para imprevistos',
+                explain: 'Un fondo de emergencia evita que tengas que vender tus inversiones en un mal momento ante cualquier urgencia.'
+              }
+            ]
+          },
+          {
+            id: 'inv-3',
+            title: 'Riesgo y rendimiento',
+            summary: 'A mayor ganancia posible, mayor riesgo',
+            icon: '⚖️',
+            questions: [
+              {
+                q: 'En el mundo de las inversiones, ¿cómo se relacionan el riesgo y el rendimiento?',
+                options: [
+                  'A mayor ganancia potencial, mayor es el riesgo asumido',
+                  'A mayor ganancia potencial, menor es el riesgo',
+                  'El riesgo y el rendimiento no tienen ninguna relación'
+                ],
+                correct: 'A mayor ganancia potencial, mayor es el riesgo asumido',
+                explain: 'Para aspirar a rendimientos más altos debes aceptar mayor volatilidad o incertidumbre en el camino.'
+              },
+              {
+                q: 'Si alguien te ofrece ganancias altísimas con "cero riesgo", ¿qué debes pensar?',
+                options: [
+                  'Que probablemente es un engaño o esconde riesgos ocultos',
+                  'Que encontraste un secreto exclusivo que los bancos ocultan',
+                  'Que debes transferirle todos tus ahorros de inmediato'
+                ],
+                correct: 'Que probablemente es un engaño o esconde riesgos ocultos',
+                explain: 'En finanzas no existen rendimientos extraordinarios garantizados sin riesgo; desconfía de esa promesa.'
+              },
+              {
+                q: '¿Qué significa tolerancia al riesgo?',
+                options: [
+                  'Qué tan tranquilo puedes dormir si tu inversión baja temporalmente',
+                  'La cantidad máxima de tarjetas de crédito que puedes tener',
+                  'La obligación de vender apenas veas una caída del 1%'
+                ],
+                correct: 'Qué tan tranquilo puedes dormir si tu inversión baja temporalmente',
+                explain: 'Conocer tu tolerancia al riesgo te ayuda a elegir inversiones acordes a tu perfil emocional y financiero.'
+              }
+            ]
+          },
+          {
+            id: 'inv-4',
+            title: 'La inflación',
+            summary: 'Por qué el dinero pierde poder de compra',
+            icon: '🎈',
+            questions: [
+              {
+                q: 'Si hay una inflación del 8% anual y guardas $1,000 bajo el colchón, ¿qué pasa al cabo de un año?',
+                options: [
+                  'Sigues teniendo $1,000, pero compras menos cosas con ellos',
+                  'Ahora tienes $1,080 automáticamente en el colchón',
+                  'Los precios bajan un 8% para compensar tu ahorro'
+                ],
+                correct: 'Sigues teniendo $1,000, pero compras menos cosas con ellos',
+                explain: 'Aunque el número de billetes no cambie, el aumento de precios reduce lo que puedes adquirir con ese dinero.'
+              },
+              {
+                q: '¿Qué es exactamente la inflación?',
+                options: [
+                  'El aumento generalizado de precios que reduce el poder de compra del dinero',
+                  'El interés que te paga un fondo indexado cada trimestre',
+                  'La caída repentina del precio de una sola acción tecnológica'
+                ],
+                correct: 'El aumento generalizado de precios que reduce el poder de compra del dinero',
+                explain: 'La inflación erosiona silenciosamente el valor real del dinero inmovilizado.'
+              },
+              {
+                q: '¿Cómo ayuda la inversión frente a la inflación?',
+                options: [
+                  'Busca rendimientos que superen el alza de precios para proteger tu poder adquisitivo',
+                  'Congela los precios de los supermercados en tu ciudad',
+                  'Evita que los gobiernos emitan monedas o billetes'
+                ],
+                correct: 'Busca rendimientos que superen el alza de precios para proteger tu poder adquisitivo',
+                explain: 'Invertir por encima de la tasa de inflación permite que tu dinero conserve y aumente su valor real.'
+              }
+            ]
+          },
+          {
+            id: 'inv-5',
+            title: 'Interés compuesto',
+            summary: 'El efecto del tiempo sobre tus ahorros',
+            icon: '📈',
+            questions: [
+              {
+                q: '¿Qué es el interés compuesto?',
+                diagram: 'compound_growth',
+                options: [
+                  'Ganar rendimientos tanto sobre tu capital inicial como sobre las ganancias acumuladas',
+                  'Retirar todas tus ganancias cada mes para gastarlas',
+                  'Pagar dos comisiones distintas por el mismo fondo'
+                ],
+                correct: 'Ganar rendimientos tanto sobre tu capital inicial como sobre las ganancias acumuladas',
+                explain: 'Es el efecto "bola de nieve": tus ganancias generan nuevas ganancias con el paso del tiempo.'
+              },
+              {
+                q: '¿Cuál es el ingrediente más poderoso para que funcione el interés compuesto?',
+                options: [
+                  'El tiempo y la constancia de reinvertir las ganancias',
+                  'Cambiar de estrategia todos los lunes por la mañana',
+                  'Esperar hasta tener una fortuna para empezar'
+                ],
+                correct: 'El tiempo y la constancia de reinvertir las ganancias',
+                explain: 'Cuantos más años permanezcan invertidos tus rendimientos, más acelerada se vuelve la curva de crecimiento.'
+              },
+              {
+                q: 'Si dos personas invierten lo mismo al año, pero Ana empieza 10 años antes que Luis, ¿quién tendrá más al jubilarse?',
+                options: [
+                  'Ana, porque su dinero tuvo más años multiplicándose sobre sí mismo',
+                  'Luis, porque empezó cuando era mayor y más experimentado',
+                  'Tendrán exactamente la misma cantidad al final'
+                ],
+                correct: 'Ana, porque su dinero tuvo más años multiplicándose sobre sí mismo',
+                explain: 'Empezar temprano da una ventaja matemática enorme gracias a los ciclos adicionales de capitalización.'
+              }
+            ]
+          },
+          {
+            id: 'inv-6',
+            title: 'Acciones, bonos y fondos',
+            summary: 'Los instrumentos más comunes, explicados simple',
+            icon: '🏛️',
+            questions: [
+              {
+                q: 'Cuando compras una acción de una empresa, ¿qué estás adquiriendo?',
+                options: [
+                  'Una pequeña parte de la propiedad de esa empresa',
+                  'Un préstamo obligatorio que la empresa debe devolverte mañana',
+                  'Un seguro contra cualquier caída de la bolsa'
+                ],
+                correct: 'Una pequeña parte de la propiedad de esa empresa',
+                explain: 'Ser accionista te convierte en copropietario proporcional del negocio y sus resultados futuros.'
+              },
+              {
+                q: '¿Qué es un bono?',
+                options: [
+                  'Un préstamo que tú le haces a un gobierno o empresa a cambio de intereses',
+                  'Un cupón de descuento para comprar acciones a mitad de precio',
+                  'Una criptomoneda creada por bancos centrales'
+                ],
+                correct: 'Un préstamo que tú le haces a un gobierno o empresa a cambio de intereses',
+                explain: 'En los bonos (renta fija), actúas como prestamista y recibes pagos de interés pactados.'
+              },
+              {
+                q: '¿Qué ventaja ofrece un fondo indexado o ETF frente a comprar una sola acción?',
+                options: [
+                  'Te permite invertir en decenas o cientos de empresas con una sola compra',
+                  'Garantiza que ninguna empresa dentro del fondo pueda bajar jamás',
+                  'Te convierte en el director ejecutivo de todas esas empresas'
+                ],
+                correct: 'Te permite invertir en decenas o cientos de empresas con una sola compra',
+                explain: 'Los fondos y ETFs agrupan múltiples activos, facilitando la diversificación de forma sencilla y accesible.'
+              }
+            ]
+          },
+          {
+            id: 'inv-7',
+            title: 'Diversificación',
+            summary: 'Por qué no poner todo en un solo lugar',
+            icon: '🧺',
+            questions: [
+              {
+                q: '¿Qué significa diversificar una cartera de inversión?',
+                options: [
+                  'Repartir tu dinero entre distintos activos, sectores y países para reducir riesgos',
+                  'Abrir cinco cuentas bancarias en el mismo banco para guardar efectivo',
+                  'Comprar únicamente acciones de empresas tecnológicas de un solo país'
+                ],
+                correct: 'Repartir tu dinero entre distintos activos, sectores y países para reducir riesgos',
+                explain: 'Diversificar evita que el mal desempeño de un solo activo comprometa todo tu capital.'
+              },
+              {
+                q: 'Si inviertes el 100% de tu dinero en una sola aerolínea y el sector entra en crisis, ¿qué falló?',
+                options: [
+                  'Faltó diversificación para amortiguar la caída de un solo sector',
+                  'Faltó revisar el gráfico cada 5 segundos',
+                  'El interés compuesto dejó de existir'
+                ],
+                correct: 'Faltó diversificación para amortiguar la caída de un solo sector',
+                explain: 'Concentrar todo en una empresa o industria expone tu patrimonio a riesgos específicos evitables.'
+              },
+              {
+                q: '¿Diversificar elimina por completo el riesgo de mercado?',
+                options: [
+                  'No, pero evita que el fracaso de una sola empresa arruine todo tu patrimonio',
+                  'Sí, hace que tu cartera suba todos los días sin excepción',
+                  'No sirve de nada si inviertes a más de 5 años'
+                ],
+                correct: 'No, pero evita que el fracaso de una sola empresa arruine todo tu patrimonio',
+                explain: 'El mercado siempre tiene fluctuaciones generales, pero la diversificación reduce drásticamente el riesgo individual.'
+              }
+            ]
+          },
+          {
+            id: 'inv-8',
+            title: 'Horizonte y paciencia',
+            summary: 'Largo plazo frente a la ansiedad del corto plazo',
+            icon: '⏳',
+            questions: [
+              {
+                q: 'Si inviertes para tu retiro dentro de 20 años y la bolsa cae un 12% este mes, ¿qué suele ser lo más sensato?',
+                options: [
+                  'Mantener la calma y respetar tu plan de largo plazo sin vender por pánico',
+                  'Vender todo hoy mismo para asegurar la pérdida',
+                  'Dejar de invertir para siempre y guardar el dinero en efectivo'
+                ],
+                correct: 'Mantener la calma y respetar tu plan de largo plazo sin vender por pánico',
+                explain: 'Las caídas temporales son normales en el mercado; vender por miedo convierte una baja temporal en pérdida real.'
+              },
+              {
+                q: '¿Qué es el horizonte de inversión?',
+                options: [
+                  'El tiempo que planeas mantener tu dinero invertido antes de necesitarlo',
+                  'La hora exacta en que abre y cierra la bolsa cada día',
+                  'El precio máximo al que puede llegar una acción'
+                ],
+                correct: 'El tiempo que planeas mantener tu dinero invertido antes de necesitarlo',
+                explain: 'Definir tu horizonte determina cuánto riesgo puedes asumir con comodidad.'
+              },
+              {
+                q: '¿Por qué la ansiedad del corto plazo perjudica a los inversionistas principiantes?',
+                options: [
+                  'Porque los lleva a vender barato cuando hay miedo y comprar caro cuando hay euforia',
+                  'Porque los fondos cobran multas si miras tu saldo desde el celular',
+                  'Porque las empresas reparten menos dividendos a quienes están nerviosos'
+                ],
+                correct: 'Porque los lleva a vender barato cuando hay miedo y comprar caro cuando hay euforia',
+                explain: 'Reaccionar impulsivamente a las noticias diarias suele destruir el rendimiento a largo plazo.'
+              }
+            ]
+          },
+          {
+            id: 'inv-9',
+            title: 'Costos y comisiones',
+            summary: 'Lo que se come tus ganancias sin que lo notes',
+            icon: '🧾',
+            questions: [
+              {
+                q: '¿Por qué es tan importante revisar las comisiones de un fondo o plataforma?',
+                options: [
+                  'Porque una comisión alta se come una gran parte de tus ganancias compuestas',
+                  'Porque las comisiones siempre son devueltas al final del año',
+                  'Porque solo los fondos con comisiones altas son legales'
+                ],
+                correct: 'Porque una comisión alta se come una gran parte de tus ganancias compuestas',
+                explain: 'Una diferencia del 1% o 2% anual en comisiones puede representar decenas de miles a largo plazo.'
+              },
+              {
+                q: 'Entre dos fondos que invierten exactamente en lo mismo, uno cobra 0.15% anual y otro 2.5% anual. ¿Cuál conviene más?',
+                options: [
+                  'El de 0.15% anual, porque deja más rendimiento en tu bolsillo',
+                  'El de 2.5% anual, porque al ser más caro siempre gana más',
+                  'Da exactamente igual porque ambos replican lo mismo'
+                ],
+                correct: 'El de 0.15% anual, porque deja más rendimiento en tu bolsillo',
+                explain: 'Cuando dos vehículos ofrecen la misma exposición, reducir costos es una ganancia directa y segura.'
+              },
+              {
+                q: '¿Qué ocurre con las comisiones cuando el mercado tiene un año negativo?',
+                options: [
+                  'Se cobran igual, haciendo que tu pérdida sea mayor',
+                  'La gestora te paga a ti el porcentaje de comisión',
+                  'Se cancelan automáticamente durante 5 años'
+                ],
+                correct: 'Se cobran igual, haciendo que tu pérdida sea mayor',
+                explain: 'Las comisiones de administración se descuentan independientemente de si el mercado subió o bajó.'
+              }
+            ]
+          },
+          {
+            id: 'inv-10',
+            title: 'Misión: señales de alerta',
+            summary: 'Reconocer promesas poco realistas y posibles fraudes',
+            icon: '🛡️',
+            questions: [
+              {
+                q: 'Te escriben por redes prometiendo "duplicar tu dinero en 15 días sin riesgo y garantizado". ¿Qué es?',
+                options: [
+                  'Una señal clara de posible estafa o esquema piramidal',
+                  'Una oportunidad única de inversión institucional',
+                  'Un beneficio normal de cualquier cuenta de ahorro'
+                ],
+                correct: 'Una señal clara de posible estafa o esquema piramidal',
+                explain: 'Ningún instrumento financiero legítimo garantiza duplicar capital en días sin riesgo.'
+              },
+              {
+                q: '¿Cuál de estas frases es una bandera roja en inversiones?',
+                options: [
+                  "'Cupos limitados, deposita hoy mismo antes de que cierre la oportunidad'",
+                  "'Lee el prospecto informativo y evalúa los riesgos antes de invertir'",
+                  "'Diversifica tu cartera según tu horizonte y tolerancia al riesgo'"
+                ],
+                correct: "'Cupos limitados, deposita hoy mismo antes de que cierre la oportunidad'",
+                explain: 'La falsa urgencia busca impedir que investigues y pienses con claridad antes de entregar tu dinero.'
+              },
+              {
+                q: 'Antes de confiar tu dinero a una entidad financiera, ¿qué debes verificar?',
+                options: [
+                  'Que esté debidamente regulada y supervisada por autoridades oficiales',
+                  'Que tenga muchos seguidores y fotos de autos lujosos en redes',
+                  'Que te pida reclutar a 3 amigos para poder retirar tus ganancias'
+                ],
+                correct: 'Que esté debidamente regulada y supervisada por autoridades oficiales',
+                explain: 'Verificar la regulación oficial es el filtro número uno para proteger tu patrimonio frente a fraudes.'
+              }
+            ]
+          }
+        ]
+      },
+
+      tradear: {
+        id: 'tradear',
+        name: 'Tradear',
+        subtitle: 'Velas, gráficos y riesgo',
+        unitTitle: 'Unidad 1 · Velas japonesas y mercado',
+        unitDesc: 'Lee el lenguaje del precio y protege tu capital en simulador.',
+        color: '#FF6B2C',
+        darkColor: '#E8590C',
+        softBg: '#FFF4E6',
+        lessons: [
+          {
+            id: 'trd-1',
+            title: 'Qué es tradear',
+            summary: 'En qué se diferencia de invertir y qué riesgos tiene',
+            icon: '⚡',
+            questions: [
+              {
+                q: '¿En qué se diferencia principalmente tradear de invertir a largo plazo?',
+                options: [
+                  'Tradear busca aprovechar movimientos de precio en plazos cortos o medios',
+                  'Tradear consiste en guardar billetes en una caja fuerte durante 30 años',
+                  'En el trading nunca existen pérdidas porque las operaciones duran poco'
+                ],
+                correct: 'Tradear busca aprovechar movimientos de precio en plazos cortos o medios',
+                explain: 'Mientras invertir construye patrimonio a años vista, el trading opera fluctuaciones más frecuentes del mercado.'
+              },
+              {
+                q: '¿Por qué el trading conlleva un riesgo alto para principiantes sin preparación?',
+                options: [
+                  'Porque la velocidad del mercado amplifica errores si no hay gestión de riesgo',
+                  'Porque las plataformas cierran las cuentas si ganas dos veces seguidas',
+                  'Porque está prohibido usar órdenes de protección'
+                ],
+                correct: 'Porque la velocidad del mercado amplifica errores si no hay gestión de riesgo',
+                explain: 'Sin reglas claras ni control de pérdidas, operar en plazos cortos puede erosionar una cuenta rápidamente.'
+              },
+              {
+                q: 'En Kairos JC, ¿cómo practicas tus habilidades de trading?',
+                options: [
+                  'En un entorno de aprendizaje y simulador, sin arriesgar dinero real',
+                  'Conectando tu tarjeta de crédito para operar en vivo desde el día uno',
+                  'Apostando dinero en una ruleta aleatoria'
+                ],
+                correct: 'En un entorno de aprendizaje y simulador, sin arriesgar dinero real',
+                explain: 'Kairos JC está diseñado 100% para aprender y practicar sin broker ni exposición de dinero real.'
+              }
+            ]
+          },
+          {
+            id: 'trd-2',
+            title: 'Cómo funciona un mercado',
+            summary: 'Compradores, vendedores y precio',
+            icon: '🔄',
+            questions: [
+              {
+                q: '¿Qué hace que el precio de un activo suba en el mercado?',
+                options: [
+                  'Hay más presión de compradores dispuestos a pagar más que de vendedores',
+                  'Una computadora central sube el precio cada hora por obligación',
+                  'Nadie quiere comprar el activo durante toda la semana'
+                ],
+                correct: 'Hay más presión de compradores dispuestos a pagar más que de vendedores',
+                explain: 'El precio refleja en tiempo real el equilibrio entre oferta (vendedores) y demanda (compradores).'
+              },
+              {
+                q: '¿Qué representa el precio actual que ves en un gráfico?',
+                options: [
+                  'El último acuerdo de intercambio entre un comprador y un vendedor',
+                  'El valor garantizado que tendrá el activo mañana',
+                  'El promedio de precios de los últimos 10 años'
+                ],
+                correct: 'El último acuerdo de intercambio entre un comprador y un vendedor',
+                explain: 'Cada tic en el gráfico es el resultado de una transacción real acordada entre dos participantes.'
+              },
+              {
+                q: 'Cuando hay exceso de oferta (muchos vendiendo y pocos comprando), ¿qué tiende a hacer el precio?',
+                options: [
+                  'Bajar hasta encontrar niveles donde vuelvan a aparecer compradores',
+                  'Subir verticalmente sin detenerse',
+                  'Quedarse congelado durante un mes entero'
+                ],
+                correct: 'Bajar hasta encontrar niveles donde vuelvan a aparecer compradores',
+                explain: 'Cuando abundan los vendedores, el precio desciende buscando equilibrio con nueva demanda.'
+              }
+            ]
+          },
+          {
+            id: 'trd-3',
+            title: 'Velas japonesas',
+            summary: 'Leer apertura, cierre, máximo y mínimo',
+            icon: '🕯️',
+            questions: [
+              {
+                // PREGUNTA EXACTA DEL BOCETO (Pantalla 3)
+                q: 'Una vela verde con cuerpo largo y mechas cortas. ¿Qué indica?',
+                diagram: 'green_long_candle',
+                options: [
+                  'Los compradores dominaron',
+                  'El mercado estaba cerrado',
+                  'El precio no se movió'
+                ],
+                correct: 'Los compradores dominaron',
+                explain: 'Un cuerpo verde amplio muestra que el precio subió con fuerza desde la apertura hasta el cierre.'
+              },
+              {
+                q: '¿Qué cuatro datos resume cada vela japonesa en un periodo de tiempo?',
+                diagram: 'candle_anatomy',
+                options: [
+                  'Precio de apertura, cierre, máximo y mínimo',
+                  'Comisiones, impuestos, dividendos y saldo bancario',
+                  'Nombre de la empresa, país, sector y número de empleados'
+                ],
+                correct: 'Precio de apertura, cierre, máximo y mínimo',
+                explain: 'El cuerpo marca apertura y cierre, mientras que las mechas señalan el máximo y mínimo alcanzados.'
+              },
+              {
+                q: '¿Qué indica una vela roja con una mecha inferior muy larga?',
+                diagram: 'red_hammer_candle',
+                options: [
+                  'Que el precio cayó con fuerza, pero los compradores rechazaron la caída antes del cierre',
+                  'Que no hubo ninguna operación durante ese periodo',
+                  'Que el activo dejó de cotizar en la bolsa'
+                ],
+                correct: 'Que el precio cayó con fuerza, pero los compradores rechazaron la caída antes del cierre',
+                explain: 'La mecha inferior larga muestra que los vendedores empujaron abajo, pero entró demanda que recuperó terreno.'
+              }
+            ]
+          },
+          {
+            id: 'trd-4',
+            title: 'Tendencia, soporte y resistencia',
+            summary: 'Dónde suele frenarse o girar el precio',
+            icon: '📐',
+            questions: [
+              {
+                q: '¿Qué es un nivel de soporte en un gráfico?',
+                diagram: 'support_resistance',
+                options: [
+                  'Una zona de precio donde la caída suele frenarse porque aparece interés comprador',
+                  'Un techo infranqueable que el precio nunca puede cruzar',
+                  'El horario de atención al cliente del simulador'
+                ],
+                correct: 'Una zona de precio donde la caída suele frenarse porque aparece interés comprador',
+                explain: 'El soporte actúa como un "piso" histórico donde la demanda suele superar a la oferta.'
+              },
+              {
+                q: '¿Qué es una resistencia?',
+                options: [
+                  'Un techo o zona donde el precio suele detener su subida por presión vendedora',
+                  'Una orden automática para comprar más acciones cuando pierdes',
+                  'El mínimo histórico de hace 50 años'
+                ],
+                correct: 'Un techo o zona donde el precio suele detener su subida por presión vendedora',
+                explain: 'En las resistencias suelen aparecer toma de ganancias y vendedores que frenan el avance.'
+              },
+              {
+                q: '¿Cómo identificas una tendencia alcista saludable?',
+                diagram: 'uptrend',
+                options: [
+                  'El precio forma máximos y mínimos cada vez más altos',
+                  'El precio se mueve en una línea completamente horizontal',
+                  'Cada rebote es más bajo que el anterior'
+                ],
+                correct: 'El precio forma máximos y mínimos cada vez más altos',
+                explain: 'Una estructura de picos y valles ascendentes confirma que los compradores llevan el control.'
+              }
+            ]
+          },
+          {
+            id: 'trd-5',
+            title: 'El volumen',
+            summary: 'Cuánta fuerza hay detrás de un movimiento',
+            icon: '📊',
+            questions: [
+              {
+                q: '¿Qué mide el volumen en un gráfico de trading?',
+                options: [
+                  'La cantidad de activos o contratos negociados durante un periodo',
+                  'El nivel de sonido de las notificaciones de tu teléfono',
+                  'El tamaño físico de las velas en la pantalla'
+                ],
+                correct: 'La cantidad de activos o contratos negociados durante un periodo',
+                explain: 'El volumen revela cuánta actividad y participación hubo detrás de un movimiento de precio.'
+              },
+              {
+                q: 'Si el precio rompe una resistencia importante acompañado de un volumen muy alto, ¿qué sugiere?',
+                options: [
+                  'Que el movimiento tiene fuerza y respaldo real de participantes',
+                  'Que nadie está mirando ese mercado ese día',
+                  'Que el gráfico tiene un error de cálculo'
+                ],
+                correct: 'Que el movimiento tiene fuerza y respaldo real de participantes',
+                explain: 'Una ruptura con alto volumen suele tener mayor convicción que una ruptura con poca actividad.'
+              },
+              {
+                q: 'Una subida de precio con volumen cada vez más bajo suele advertir que:',
+                options: [
+                  'El impulso comprador está perdiendo fuerza',
+                  'El precio va a duplicarse en los próximos 3 minutos',
+                  'Hay millones de nuevos compradores entrando al mercado'
+                ],
+                correct: 'El impulso comprador está perdiendo fuerza',
+                explain: 'Cuando el precio sube pero el volumen cae, indica menor entusiasmo y posible agotamiento del movimiento.'
+              }
+            ]
+          },
+          {
+            id: 'trd-6',
+            title: 'Indicadores básicos',
+            summary: 'Medias móviles y RSI, con sus límites',
+            icon: '🧭',
+            questions: [
+              {
+                q: '¿Para qué sirve principalmente una media móvil en el gráfico?',
+                options: [
+                  'Para suavizar el ruido del precio e identificar la dirección de la tendencia',
+                  'Para garantizar exactamente el precio de cierre de la próxima semana',
+                  'Para eliminar la necesidad de usar gestión del riesgo'
+                ],
+                correct: 'Para suavizar el ruido del precio e identificar la dirección de la tendencia',
+                explain: 'La media móvil promedia precios pasados para mostrar de forma limpia la inclinación del mercado.'
+              },
+              {
+                q: '¿Qué mide el indicador RSI (Índice de Fuerza Relativa)?',
+                options: [
+                  'La velocidad y magnitud de los movimientos para detectar posible sobrecompra o sobreventa',
+                  'La cantidad de noticias publicadas sobre una empresa',
+                  'El saldo disponible en tu cuenta bancaria'
+                ],
+                correct: 'La velocidad y magnitud de los movimientos para detectar posible sobrecompra o sobreventa',
+                explain: 'El RSI oscila entre 0 y 100 y ayuda a evaluar si un movimiento reciente ha sido muy extendido.'
+              },
+              {
+                q: '¿Cuál es el mayor límite de los indicadores técnicos como el RSI o medias móviles?',
+                options: [
+                  'Se calculan con datos pasados y no predicen el futuro con certeza',
+                  'Solo funcionan los días martes y jueves',
+                  'Están prohibidos en los mercados financieros internacionales'
+                ],
+                correct: 'Se calculan con datos pasados y no predicen el futuro con certeza',
+                explain: 'Son herramientas de apoyo y contexto, nunca bolas de cristal; siempre deben combinarse con gestión de riesgo.'
+              }
+            ]
+          },
+          {
+            id: 'trd-7',
+            title: 'Gestión del riesgo',
+            summary: 'Stop loss y tamaño de posición',
+            icon: '🧯',
+            questions: [
+              {
+                q: '¿Qué es un Stop Loss?',
+                options: [
+                  'Una orden automática para cerrar una operación y limitar la pérdida si el precio va en tu contra',
+                  'Un botón para duplicar tu apuesta cuando vas perdiendo',
+                  'Una pausa obligatoria de 24 horas después de ganar'
+                ],
+                correct: 'Una orden automática para cerrar una operación y limitar la pérdida si el precio va en tu contra',
+                explain: 'El Stop Loss es tu cinturón de seguridad: define de antemano cuánto estás dispuesto a arriesgar.'
+              },
+              {
+                q: 'Si tienes una cuenta simulada de $1,000 y arriesgas máximo el 1% por operación, ¿cuánto es lo máximo que puedes perder en ese trade?',
+                options: [
+                  '$10',
+                  '$100',
+                  '$1'
+                ],
+                correct: '$10',
+                explain: 'El 1% de $1,000 equivale a $10. Arriesgar porcentajes pequeños te permite sobrevivir a rachas negativas.'
+              },
+              {
+                q: '¿Por qué nunca debes mover tu Stop Loss más lejos cuando vas perdiendo?',
+                options: [
+                  'Porque rompe tu plan y convierte una pérdida pequeña en una catástrofe',
+                  'Porque el simulador te cobra una multa del 50%',
+                  'Porque al moverlo el precio siempre sube inmediatamente'
+                ],
+                correct: 'Porque rompe tu plan y convierte una pérdida pequeña en una catástrofe',
+                explain: 'Respetar el punto de invalidación original es lo que diferencia a un trader disciplinado de uno impulsivo.'
+              }
+            ]
+          },
+          {
+            id: 'trd-8',
+            title: 'Riesgo y beneficio',
+            summary: 'Cuánto arriesgas frente a cuánto puedes ganar',
+            icon: '🎯',
+            questions: [
+              {
+                q: '¿Qué significa tener una relación Riesgo/Beneficio de 1:3?',
+                options: [
+                  'Que arriesgas 1 unidad de dinero con el objetivo de ganar 3 unidades',
+                  'Que vas a ganar 3 veces seguidas y perder 1 vez por contrato',
+                  'Que arriesgas $300 para intentar ganar $100'
+                ],
+                correct: 'Que arriesgas 1 unidad de dinero con el objetivo de ganar 3 unidades',
+                explain: 'Por ejemplo, arriesgar $10 buscando un objetivo técnico de $30 equivale a un ratio 1:3.'
+              },
+              {
+                q: 'Con una relación Riesgo/Beneficio de 1:2, ¿qué pasa si aciertas solo el 50% de tus operaciones?',
+                options: [
+                  'Terminas con ganancias netas porque tus aciertos valen el doble que tus pérdidas',
+                  'Terminas exactamente en cero sin ganar ni perder nada',
+                  'Pierdes la mitad de tu cuenta automáticamente'
+                ],
+                correct: 'Terminas con ganancias netas porque tus aciertos valen el doble que tus pérdidas',
+                explain: 'En 10 trades: 5 ganadores (+2 cada uno = +10) menos 5 perdedores (-1 cada uno = -5) deja +5 neto.'
+              },
+              {
+                q: 'Antes de entrar en una operación, ¿qué debes definir primero?',
+                options: [
+                  'Dónde saldrás si te equivocas (Stop Loss) y dónde tomarás ganancias',
+                  'En qué vas a gastar las ganancias antes de abrir el gráfico',
+                  'Cuántas veces vas a cambiar de opinión durante el trade'
+                ],
+                correct: 'Dónde saldrás si te equivocas (Stop Loss) y dónde tomarás ganancias',
+                explain: 'Planificar la salida antes de entrar evita decisiones emocionales en medio del movimiento del precio.'
+              }
+            ]
+          },
+          {
+            id: 'trd-9',
+            title: 'Estilos de trading',
+            summary: 'Swing, day trading y scalping: ventajas y desventajas',
+            icon: '⏱️',
+            questions: [
+              {
+                q: '¿Qué caracteriza al Swing Trading?',
+                options: [
+                  'Mantener operaciones durante varios días o semanas buscando movimientos amplios',
+                  'Abrir y cerrar decenas de operaciones en menos de 30 segundos',
+                  'Comprar una acción y no volver a mirarla en 40 años'
+                ],
+                correct: 'Mantener operaciones durante varios días o semanas buscando movimientos amplios',
+                explain: 'El swing trading captura "ondas" o tramos del mercado sin requerir atención minuto a minuto.'
+              },
+              {
+                q: '¿Cuál es la principal exigencia del Day Trading y el Scalping?',
+                options: [
+                  'Requieren atención intensa frente a la pantalla, rapidez y alto control emocional',
+                  'No requieren analizar gráficos ni usar Stop Loss',
+                  'Solo se pueden practicar una vez al año'
+                ],
+                correct: 'Requieren atención intensa frente a la pantalla, rapidez y alto control emocional',
+                explain: 'Operar en marcos de minutos exige concentración total, baja latencia y mucha experiencia.'
+              },
+              {
+                q: 'Para alguien que estudia o trabaja a tiempo completo, ¿qué estilo suele ser más compatible?',
+                options: [
+                  'Swing trading, porque permite analizar con calma sin mirar gráficos cada minuto',
+                  'Scalping de 15 segundos mientras conduce o está en clase',
+                  'Operar sin mirar ningún gráfico ni horario'
+                ],
+                correct: 'Swing trading, porque permite analizar con calma sin mirar gráficos cada minuto',
+                explain: 'Adaptar el estilo de trading a tu disponibilidad real de tiempo evita el estrés y los errores por prisa.'
+              }
+            ]
+          },
+          {
+            id: 'trd-10',
+            title: 'Misión: tu diario de operaciones',
+            summary: 'Práctica y control del miedo y la codicia',
+            icon: '📓',
+            questions: [
+              {
+                q: '¿Para qué sirve llevar un diario de operaciones (trading journal)?',
+                options: [
+                  'Para registrar tus decisiones, emociones y errores y mejorar con datos objetivos',
+                  'Para presumir únicamente las operaciones ganadoras en redes sociales',
+                  'Para calcular los impuestos de otras personas'
+                ],
+                correct: 'Para registrar tus decisiones, emociones y errores y mejorar con datos objetivos',
+                explain: 'Tu diario convierte la experiencia en aprendizaje medible y revela patrones de comportamiento.'
+              },
+              {
+                q: 'Sientes impulso de entrar rápido en una vela verde gigante por miedo a quedarte fuera (FOMO). ¿Qué debes hacer?',
+                options: [
+                  'Detenerte, respirar y esperar una entrada que cumpla tus reglas',
+                  'Entrar con todo tu capital antes de que suba un centavo más',
+                  'Quitar el Stop Loss para que no te saque del movimiento'
+                ],
+                correct: 'Detenerte, respirar y esperar una entrada que cumpla tus reglas',
+                explain: 'Perseguir velas extendidas por FOMO suele llevar a comprar justo antes de un retroceso.'
+              },
+              {
+                q: '¿Por qué es clave practicar en simulador antes de pensar en mercados reales?',
+                options: [
+                  'Para validar tu estrategia y controlar el miedo y la codicia sin perder patrimonio',
+                  'Porque el simulador regala dinero en efectivo al completar 3 lecciones',
+                  'Porque en el simulador los precios nunca bajan'
+                ],
+                correct: 'Para validar tu estrategia y controlar el miedo y la codicia sin perder patrimonio',
+                explain: 'Dominar la ejecución y tus emociones en entorno simulado es la base de un aprendizaje responsable.'
+              }
+            ]
+          }
+        ]
+      }
+    };
+
+    // =========================================================================
+    // 4. ESTADO DE LA APLICACIÓN Y PERSISTENCIA LOCAL
+    // =========================================================================
+    const STORAGE_KEY = 'kairos_jc_prototype_v1';
+
+    let state = {
+      screen: 'onboarding', // 'onboarding' | 'path' | 'lesson' | 'summary'
+      selectedCourse: 'tradear', // 'invertir' | 'tradear' (tradear preseleccionado como en el boceto)
+      xp: 40,
+      streak: 5, // "5 días" como en el boceto
+      testerUnlockAll: false,
+      completedLessons: {
+        invertir: [],
+        tradear: []
+      },
+      // Estado de lección activa
+      activeLesson: null, // { courseId, lessonIndex }
+      questionQueue: [],
+      currentQIndex: 0,
+      totalInitialQuestions: 3,
+      firstTryCorrectCount: 0,
+      wrongOnceSet: new Set(),
+      selectedOption: null,
+      answerState: 'idle', // 'idle' | 'correct' | 'wrong'
+      lastEarnedXP: 0,
+      previousRank: 7,
+      // Estado del modal de feedback
+      feedbackRating: 5,
+      feedbackCourse: 'Ambos'
+    };
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state.selectedCourse = parsed.selectedCourse || 'tradear';
+          state.xp = typeof parsed.xp === 'number' ? parsed.xp : 40;
+          state.streak = typeof parsed.streak === 'number' ? parsed.streak : 5;
+          state.testerUnlockAll = !!parsed.testerUnlockAll;
+          if (parsed.completedLessons) {
+            state.completedLessons = {
+              invertir: Array.isArray(parsed.completedLessons.invertir) ? parsed.completedLessons.invertir : [],
+              tradear: Array.isArray(parsed.completedLessons.tradear) ? parsed.completedLessons.tradear : []
+            };
+          }
+        }
+      } catch (e) { /* Ignorar si localStorage no está disponible */ }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          selectedCourse: state.selectedCourse,
+          xp: state.xp,
+          streak: state.streak,
+          testerUnlockAll: state.testerUnlockAll,
+          completedLessons: state.completedLessons
+        }));
+      } catch (e) { /* Ignorar */ }
+    }
+
+    // Cálculo dinámico del puesto en la Liga Sabas Nieves (empieza en puesto 7 de 30 como en el boceto)
+    function getLeagueRank(xp) {
+      if (xp >= 280) return 1;
+      if (xp >= 220) return 2;
+      if (xp >= 170) return 3;
+      if (xp >= 130) return 4;
+      if (xp >= 95) return 5;
+      if (xp >= 65) return 6;
+      return 7; // Puesto inicial exacto del boceto
+    }
+
+    // =========================================================================
+    // 5. COMPONENTES VISUALES REUTILIZABLES (LOGO K BICOLOR, ICONOS)
+    // =========================================================================
+    function renderKairosLogo(size = 'lg') {
+      const isLg = size === 'lg';
+      const iconSize = isLg ? 36 : 26;
+      const textClass = isLg ? 'text-3xl' : 'text-xl';
+      return `
+        <div class="inline-flex items-center gap-2.5 select-none">
+          <!-- Isotipo geométrico K bicolor (#12B886 y #FF6B2C) -->
+          <svg width="${iconSize}" height="${iconSize}" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="12" fill="#1B1F3B"/>
+            <!-- Columna izquierda verde Invertir -->
+            <rect x="11" y="9" width="5.5" height="22" rx="2.75" fill="#12B886"/>
+            <!-- Brazo superior naranja Tradear -->
+            <path d="M18.5 20L27.5 10.5C28.3 9.6 29.7 9.6 30.5 10.5C31.3 11.3 31.3 12.7 30.5 13.5L22.5 21.8L18.5 20Z" fill="#FF6B2C"/>
+            <!-- Brazo inferior verde/dorado -->
+            <path d="M21.5 18.5L30.5 27.5C31.3 28.3 31.3 29.7 30.5 30.5C29.7 31.3 28.3 31.3 27.5 30.5L18.5 21.5L21.5 18.5Z" fill="#12B886"/>
+          </svg>
+          <span class="font-display font-black ${textClass} tracking-tight text-ink">kairos</span>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 6. RENDERIZADO DE PANTALLAS
+    // =========================================================================
+    function render() {
+      updateTopTesterBar();
+      const shell = document.getElementById('app-shell');
+
+      if (state.screen === 'onboarding') {
+        shell.innerHTML = renderOnboardingScreen();
+      } else if (state.screen === 'path') {
+        shell.innerHTML = renderPathScreen();
+      } else if (state.screen === 'lesson') {
+        shell.innerHTML = renderLessonScreen();
+      } else if (state.screen === 'summary') {
+        shell.innerHTML = renderSummaryScreen();
+      }
+    }
+
+    function updateTopTesterBar() {
+      const dot = document.getElementById('tester-dot');
+      const statusText = document.getElementById('tester-status-text');
+      const soundIcon = document.getElementById('sound-icon');
+
+      if (state.testerUnlockAll) {
+        dot.className = 'w-2 h-2 rounded-full bg-invest animate-pulse';
+        statusText.textContent = 'Todo libre';
+        statusText.className = 'text-invest-dark';
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-gray-300';
+        statusText.textContent = 'Normal';
+        statusText.className = 'text-ink';
+      }
+
+      soundIcon.textContent = SoundFX.enabled ? '🔊' : '🔇';
+    }
+
+    // -------------------------------------------------------------------------
+    // PANTALLA 1 · ELIGE TU CURSO (Fiel al boceto 1)
+    // -------------------------------------------------------------------------
+    function renderOnboardingScreen() {
+      const isInvest = state.selectedCourse === 'invertir';
+      const isTrade = state.selectedCourse === 'tradear';
+      const btnBg = isInvest ? 'bg-invest border-invest-dark' : 'bg-trade border-trade-dark';
+
+      return `
+        <div class="flex-1 flex flex-col justify-between px-6 py-7 screen-enter overflow-y-auto app-scroll">
+          <!-- Cabecera con Logo Kairos -->
+          <div class="flex flex-col items-center text-center pt-2">
+            ${renderKairosLogo('lg')}
+            <h1 class="font-display font-extrabold text-[26px] leading-tight text-ink mt-6">
+              ¿Qué quieres aprender?
+            </h1>
+            <p class="text-sm text-gray-500 mt-1.5">
+              Dos cursos, un solo objetivo: aprender paso a paso.
+            </p>
+          </div>
+
+          <!-- Dos tarjetas grandes seleccionables -->
+          <div class="flex flex-col gap-4 my-6">
+            <!-- Tarjeta 1: Invertir (#12B886) -->
+            <button type="button" onclick="selectCourse('invertir')"
+              class="tactile-card w-full p-5 rounded-3xl text-left flex items-center gap-4 bg-white ${isInvest ? 'border-invest bg-invest-soft/40 ring-2 ring-invest/20' : 'hover:border-gray-300'}">
+              <div class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${isInvest ? 'bg-invest text-white' : 'bg-invest-soft text-invest'} transition-colors">
+                <!-- Icono SVG Brote / Crecimiento -->
+                <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+                  <path d="M18 29V15" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M18 19C18 13.5 22.5 9 28 9C28 14.5 23.5 19 18 19Z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+                  <path d="M18 22C18 17.5 14 14 9.5 14C9.5 18.5 13 22 18 22Z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+                  <path d="M11 29H25" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-display font-extrabold text-xl text-ink">Invertir</span>
+                  <span class="w-6 h-6 rounded-full border-2 flex items-center justify-center ${isInvest ? 'border-invest bg-invest text-white' : 'border-gray-300'}">
+                    ${isInvest ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                  </span>
+                </div>
+                <p class="text-sm font-medium text-gray-500 mt-0.5">Ahorro, riesgo y fondos</p>
+                <span class="inline-block mt-2 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-invest-soft text-invest-dark">
+                  10 lecciones · 3–5 min c/u
+                </span>
+              </div>
+            </button>
+
+            <!-- Tarjeta 2: Tradear (#FF6B2C) -->
+            <button type="button" onclick="selectCourse('tradear')"
+              class="tactile-card w-full p-5 rounded-3xl text-left flex items-center gap-4 bg-white ${isTrade ? 'border-trade bg-trade-soft/45 ring-2 ring-trade/20' : 'hover:border-gray-300'}">
+              <div class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${isTrade ? 'bg-trade text-white' : 'bg-trade-soft text-trade'} transition-colors">
+                <!-- Icono SVG Velas Japonesas -->
+                <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+                  <line x1="12" y1="7" x2="12" y2="29" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                  <rect x="8.5" y="13" width="7" height="11" rx="2" fill="currentColor"/>
+                  <line x1="24" y1="6" x2="24" y2="28" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                  <rect x="20.5" y="10" width="7" height="12" rx="2" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2.4"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-display font-extrabold text-xl text-ink">Tradear</span>
+                  <span class="w-6 h-6 rounded-full border-2 flex items-center justify-center ${isTrade ? 'border-trade bg-trade text-white' : 'border-gray-300'}">
+                    ${isTrade ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                  </span>
+                </div>
+                <p class="text-sm font-medium text-gray-500 mt-0.5">Velas, gráficos y riesgo</p>
+                <span class="inline-block mt-2 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-trade-soft text-trade-dark">
+                  10 lecciones · En simulador
+                </span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Botón Empezar + Nota al pie -->
+          <div class="flex flex-col items-center gap-3 pb-1">
+            <button type="button" onclick="startSelectedCourse()"
+              class="tactile-btn w-full py-4 rounded-2xl font-display font-extrabold text-lg text-white ${btnBg} shadow-sm tracking-wide">
+              Empezar
+            </button>
+            <p class="text-xs font-semibold text-gray-400 text-center">
+              Solo aprendizaje · Sin broker y sin dinero real
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
+    // -------------------------------------------------------------------------
+    // PANTALLA 2 · TU CAMINO (Ruta de aprendizaje estilo Duolingo)
+    // -------------------------------------------------------------------------
+    function renderPathScreen() {
+      const course = COURSES[state.selectedCourse];
+      const completed = state.completedLessons[course.id] || [];
+      const isInvest = course.id === 'invertir';
+
+      const headerBg = isInvest ? 'bg-invest border-invest-dark' : 'bg-trade border-trade-dark';
+      const activeNodeBg = isInvest ? 'bg-invest border-invest-dark text-white' : 'bg-trade border-trade-dark text-white';
+      const activeRingColor = isInvest ? 'border-invest' : 'border-trade';
+      const badgeTextColor = isInvest ? 'text-invest-dark' : 'text-trade-dark';
+      const rank = getLeagueRank(state.xp);
+
+      // Determinar cuál es la siguiente lección desbloqueada en modo normal
+      let nextLessonIdx = course.lessons.findIndex(l => !completed.includes(l.id));
+      if (nextLessonIdx === -1) nextLessonIdx = course.lessons.length; // Todas completadas
+
+      // Offsets horizontales en zigzag suave (en px)
+      const zigzagOffsets = [0, -46, -68, -36, 18, 58, 66, 32, -24, 0];
+
+      const nodesHTML = course.lessons.map((lesson, idx) => {
+        const isDone = completed.includes(lesson.id);
+        const isCurrent = !isDone && idx === nextLessonIdx;
+        const isUnlocked = state.testerUnlockAll || isDone || isCurrent;
+        const offsetX = zigzagOffsets[idx % zigzagOffsets.length];
+
+        let nodeStyle = '';
+        let iconContent = '';
+
+        if (isDone) {
+          // Lección completada en dorado #FFC933
+          nodeStyle = 'bg-prize border-prize-dark text-ink';
+          iconContent = `
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1B1F3B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          `;
+        } else if (isCurrent) {
+          // Lección actual en color del curso
+          nodeStyle = activeNodeBg;
+          iconContent = `<span class="text-2xl">${lesson.icon}</span>`;
+        } else if (state.testerUnlockAll) {
+          // Desbloqueada por Modo Tester
+          nodeStyle = 'bg-white border-gray-300 text-ink hover:border-gray-400';
+          iconContent = `<span class="text-xl">${lesson.icon}</span>`;
+        } else {
+          // Bloqueada en gris claro
+          nodeStyle = 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed';
+          iconContent = `
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          `;
+        }
+
+        return `
+          <div class="relative flex flex-col items-center my-3.5" style="transform: translateX(${offsetX}px);">
+            ${isCurrent ? `
+              <div class="animate-float mb-2 px-3 py-1 rounded-xl bg-white border-2 border-gray-200 shadow-xs text-[11px] font-display font-black tracking-wider ${badgeTextColor}">
+                EMPEZAR
+              </div>
+            ` : ''}
+
+            <div class="relative flex items-center justify-center">
+              ${isCurrent ? `<span class="pulse-ring absolute inset-0 rounded-full border-4 ${activeRingColor}"></span>` : ''}
+              <button type="button"
+                ${isUnlocked ? `onclick="startLesson('${course.id}', ${idx})"` : 'disabled'}
+                aria-label="Lección ${idx + 1}: ${lesson.title}"
+                class="path-node relative w-[70px] h-[70px] rounded-full flex items-center justify-center font-display font-extrabold shadow-xs ${nodeStyle}">
+                ${iconContent}
+                <span class="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-white border-2 border-gray-200 text-[11px] font-extrabold text-ink flex items-center justify-center">
+                  ${idx + 1}
+                </span>
+              </button>
+            </div>
+
+            <!-- Título de la lección -->
+            <div class="mt-2 text-center max-w-[165px]">
+              <p class="font-display font-extrabold text-xs leading-snug ${isUnlocked ? 'text-ink' : 'text-gray-400'}">
+                ${lesson.title}
+              </p>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="flex-1 flex flex-col h-full overflow-hidden screen-enter">
+          <!-- Barra superior de estado (Curso, XP dorados, Racha) -->
+          <header class="px-4 py-3 border-b-2 border-gray-100 bg-white flex items-center justify-between gap-2 shrink-0">
+            <!-- Selector / Cambio de curso -->
+            <button type="button" onclick="goToOnboarding()" title="Cambiar de curso"
+              class="flex items-center gap-2 px-3 py-1.5 rounded-2xl border-2 border-gray-200 hover:bg-gray-50 transition">
+              <span class="w-3.5 h-3.5 rounded-full ${isInvest ? 'bg-invest' : 'bg-trade'}"></span>
+              <span class="font-display font-extrabold text-sm text-ink">${course.name}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+
+            <!-- XP y Racha -->
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1 bg-prize-soft px-2.5 py-1 rounded-xl border border-prize/60">
+                <span class="text-sm">⭐</span>
+                <span class="font-display font-extrabold text-sm text-ink">${state.xp} XP</span>
+              </div>
+              <div class="flex items-center gap-1 bg-orange-50 px-2.5 py-1 rounded-xl border border-orange-200/70">
+                <span class="text-sm">🔥</span>
+                <span class="font-display font-extrabold text-sm text-trade-dark">${state.streak} días</span>
+              </div>
+            </div>
+          </header>
+
+          <!-- Contenido desplazable del camino -->
+          <div class="flex-1 overflow-y-auto app-scroll px-4 pt-4 pb-24">
+            <!-- Tarjeta de cabecera de Unidad -->
+            <div class="${headerBg} border-b-4 rounded-3xl p-4 text-white shadow-xs mb-5">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider opacity-90">
+                  Ruta · ${completed.length}/10 completadas
+                </span>
+                <button type="button" onclick="quickSwitchCourse()"
+                  class="text-[11px] font-extrabold bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded-xl transition">
+                  Ir a ${isInvest ? 'Tradear 🕯️' : 'Invertir 🌱'}
+                </button>
+              </div>
+              <h2 class="font-display font-extrabold text-lg mt-1 leading-snug">
+                ${course.unitTitle}
+              </h2>
+              <p class="text-xs text-white/90 mt-0.5">
+                ${course.unitDesc}
+              </p>
+            </div>
+
+            <!-- Camino vertical en zigzag con línea conectora central sutil -->
+            <div class="relative flex flex-col items-center py-2">
+              <div class="absolute top-8 bottom-8 w-1.5 bg-gray-100 rounded-full -z-0"></div>
+              <div class="relative z-10 flex flex-col items-center w-full">
+                ${nodesHTML}
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta fija inferior de Liga Sabas Nieves (Boceto Pantalla 2) -->
+          <div class="px-4 py-3 bg-white border-t-2 border-gray-100 shrink-0">
+            <div class="bg-prize-soft/75 border-2 border-prize/70 rounded-2xl px-4 py-2.5 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">🏆</span>
+                <div>
+                  <p class="font-display font-extrabold text-xs text-ink">
+                    Liga Sabas Nieves · puesto ${rank} de 30
+                  </p>
+                  <p class="text-[11px] text-gray-500 font-medium">
+                    Completa lecciones para subir posiciones
+                  </p>
+                </div>
+              </div>
+              <span class="text-xs font-display font-black px-2.5 py-1 rounded-xl bg-prize text-ink">
+                #${rank}
+              </span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // -------------------------------------------------------------------------
+    // PANTALLA 3 · LECCIÓN INTERACTIVA (Fiel al boceto 3)
+    // -------------------------------------------------------------------------
+    function renderLessonScreen() {
+      const { courseId, lessonIndex } = state.activeLesson;
+      const course = COURSES[courseId];
+      const lesson = course.lessons[lessonIndex];
+      const isInvest = courseId === 'invertir';
+
+      const currentItem = state.questionQueue[state.currentQIndex];
+      // Progreso basado en cuántas preguntas iniciales ya se respondieron bien
+      const remaining = state.questionQueue.length - state.currentQIndex;
+      const doneFraction = Math.max(0.08, Math.min(1, (state.totalInitialQuestions - remaining + (state.answerState === 'correct' ? 1 : 0)) / state.totalInitialQuestions));
+      const progressPct = Math.round(doneFraction * 100);
+
+      const barColor = isInvest ? 'bg-invest' : 'bg-trade';
+      const selectedBorder = isInvest ? 'border-invest bg-invest-soft/45' : 'border-trade bg-trade-soft/50';
+      const checkBtnColor = isInvest ? 'bg-invest border-invest-dark' : 'bg-trade border-trade-dark';
+
+      const letters = ['A', 'B', 'C'];
+
+      const optionsHTML = currentItem.shuffledOptions.map((optText, i) => {
+        const isSelected = state.selectedOption === optText;
+        let cardClass = 'bg-white border-gray-200 hover:border-gray-300 text-ink';
+        let letterBadgeClass = 'bg-gray-100 text-gray-500';
+
+        if (state.answerState === 'idle') {
+          if (isSelected) {
+            cardClass = `${selectedBorder} text-ink`;
+            letterBadgeClass = isInvest ? 'bg-invest text-white' : 'bg-trade text-white';
+          }
+        } else if (state.answerState === 'correct') {
+          if (optText === currentItem.correct) {
+            cardClass = 'bg-invest-soft border-invest text-ink';
+            letterBadgeClass = 'bg-invest text-white';
+          } else {
+            cardClass = 'bg-white border-gray-200 opacity-55 text-gray-500';
+          }
+        } else if (state.answerState === 'wrong') {
+          if (isSelected) {
+            cardClass = 'bg-[#FFF5F5] border-[#FF6B6B] text-ink';
+            letterBadgeClass = 'bg-[#FF6B6B] text-white';
+          } else if (optText === currentItem.correct) {
+            cardClass = 'bg-invest-soft/70 border-invest text-ink';
+            letterBadgeClass = 'bg-invest text-white';
+          } else {
+            cardClass = 'bg-white border-gray-200 opacity-55 text-gray-500';
+          }
+        }
+
+        return `
+          <button type="button"
+            ${state.answerState !== 'idle' ? 'disabled' : `onclick="chooseOption(${i})"`}
+            class="tactile-card w-full p-3.5 rounded-2xl text-left flex items-center gap-3 ${cardClass}">
+            <span class="w-7 h-7 rounded-lg font-display font-extrabold text-xs flex items-center justify-center shrink-0 ${letterBadgeClass}">
+              ${letters[i] || i + 1}
+            </span>
+            <span class="font-semibold text-[14.5px] leading-snug flex-1">
+              ${optText}
+            </span>
+          </button>
+        `;
+      }).join('');
+
+      // Panel inferior: Botón "Comprobar" o Retroalimentación inmediata (idéntico al boceto)
+      let bottomPanelHTML = '';
+      if (state.answerState === 'idle') {
+        const hasChoice = state.selectedOption !== null;
+        bottomPanelHTML = `
+          <div class="p-4 bg-white border-t-2 border-gray-100 shrink-0">
+            <button type="button"
+              ${hasChoice ? 'onclick="checkAnswer()"' : 'disabled'}
+              class="tactile-btn w-full py-3.5 rounded-2xl font-display font-extrabold text-base tracking-wide ${hasChoice ? `${checkBtnColor} text-white` : 'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed'}">
+              Comprobar
+            </button>
+          </div>
+        `;
+      } else if (state.answerState === 'correct') {
+        bottomPanelHTML = `
+          <div class="feedback-enter p-5 bg-invest-soft border-t-2 border-invest-border shrink-0">
+            <div class="flex items-start gap-3 mb-3.5">
+              <div class="w-8 h-8 rounded-full bg-invest text-white flex items-center justify-center shrink-0 mt-0.5">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-display font-black text-lg text-invest leading-tight">
+                  ¡Exacto! +10 XP
+                </h4>
+                <p class="text-xs font-semibold text-ink/80 mt-1 leading-relaxed">
+                  ${currentItem.explain}
+                </p>
+              </div>
+            </div>
+            <button type="button" onclick="nextQuestion()"
+              class="tactile-btn w-full py-3.5 rounded-2xl font-display font-extrabold text-base text-white bg-invest border-invest-dark">
+              Continuar
+            </button>
+          </div>
+        `;
+      } else {
+        bottomPanelHTML = `
+          <div class="feedback-enter p-5 bg-[#FFF5F5] border-t-2 border-[#FFC9C9] shrink-0">
+            <div class="flex items-start gap-3 mb-3.5">
+              <div class="w-8 h-8 rounded-full bg-[#FF6B6B] text-white flex items-center justify-center shrink-0 font-display font-black text-base mt-0.5">
+                !
+              </div>
+              <div>
+                <h4 class="font-display font-black text-base text-[#E03131] leading-tight">
+                  ¡Casi! Mira por qué:
+                </h4>
+                <p class="text-xs font-semibold text-ink/85 mt-1 leading-relaxed">
+                  ${currentItem.explain}
+                </p>
+              </div>
+            </div>
+            <button type="button" onclick="nextQuestion()"
+              class="tactile-btn w-full py-3.5 rounded-2xl font-display font-extrabold text-base text-white bg-[#FF6B6B] border-[#E03131]">
+              Continuar
+            </button>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="flex-1 flex flex-col h-full overflow-hidden screen-enter bg-white">
+          <!-- Barra superior: Botón × y barra de progreso horizontal -->
+          <div class="px-4 pt-4 pb-2 flex items-center gap-3 shrink-0">
+            <button type="button" onclick="requestExitLesson()" aria-label="Salir de la lección"
+              class="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-ink text-2xl font-bold transition">
+              ×
+            </button>
+            <div class="flex-1 h-3.5 bg-gray-100 rounded-full overflow-hidden">
+              <div class="h-full ${barColor} rounded-full transition-all duration-300" style="width: ${progressPct}%"></div>
+            </div>
+            <span class="text-xs font-display font-extrabold text-gray-400">
+              ${Math.min(state.currentQIndex + 1, state.questionQueue.length)}/${state.questionQueue.length}
+            </span>
+          </div>
+
+          <!-- Área central de la pregunta -->
+          <div class="flex-1 overflow-y-auto app-scroll px-5 py-2 flex flex-col justify-between">
+            <div>
+              <div class="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-lg ${isInvest ? 'bg-invest-soft text-invest-dark' : 'bg-trade-soft text-trade-dark'} mb-2.5">
+                <span>${lesson.icon}</span>
+                <span>Lección ${lessonIndex + 1} · ${lesson.title}</span>
+              </div>
+
+              <h2 class="font-display font-extrabold text-[20px] leading-snug text-ink">
+                ${currentItem.q}
+              </h2>
+
+              <!-- Ilustración SVG didáctica cuando la pregunta lo requiere -->
+              ${getDiagramSVG(currentItem.diagram)}
+            </div>
+
+            <!-- Tarjetas de opciones -->
+            <div class="flex flex-col gap-2.5 my-3">
+              ${optionsHTML}
+            </div>
+          </div>
+
+          <!-- Panel inferior fijo -->
+          ${bottomPanelHTML}
+        </div>
+      `;
+    }
+
+    // -------------------------------------------------------------------------
+    // PANTALLA 4 · RESUMEN AL COMPLETAR LECCIÓN
+    // -------------------------------------------------------------------------
+    function renderSummaryScreen() {
+      const { courseId, lessonIndex } = state.activeLesson;
+      const course = COURSES[courseId];
+      const lesson = course.lessons[lessonIndex];
+      const isInvest = courseId === 'invertir';
+      const btnBg = isInvest ? 'bg-invest border-invest-dark' : 'bg-trade border-trade-dark';
+
+      const accuracy = Math.round((state.firstTryCorrectCount / state.totalInitialQuestions) * 100);
+      const newRank = getLeagueRank(state.xp);
+      const rankImproved = newRank < state.previousRank;
+
+      return `
+        <div class="flex-1 flex flex-col justify-between px-6 py-8 text-center screen-enter overflow-y-auto app-scroll">
+          <div class="flex flex-col items-center pt-4">
+            <!-- Medalla dorada #FFC933 -->
+            <div class="w-24 h-24 rounded-3xl bg-prize-soft border-b-4 border-prize flex items-center justify-center text-5xl shadow-xs mb-4">
+              🏆
+            </div>
+            <span class="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full ${isInvest ? 'bg-invest-soft text-invest-dark' : 'bg-trade-soft text-trade-dark'}">
+              Lección ${lessonIndex + 1} completada
+            </span>
+            <h2 class="font-display font-black text-[26px] text-ink mt-2 leading-tight">
+              ¡Excelente trabajo!
+            </h2>
+            <p class="text-sm text-gray-500 mt-1">
+              Dominaste <strong class="text-ink">${lesson.title}</strong>
+            </p>
+          </div>
+
+          <!-- Métricas de logro (XP, Racha, Precisión) -->
+          <div class="grid grid-cols-3 gap-2.5 my-6">
+            <div class="bg-prize-soft/70 border-2 border-prize rounded-2xl p-3">
+              <span class="text-[11px] font-extrabold uppercase text-amber-700 block">Ganado</span>
+              <span class="font-display font-black text-lg text-ink mt-1 block">+${state.lastEarnedXP} XP</span>
+            </div>
+            <div class="bg-orange-50 border-2 border-orange-200 rounded-2xl p-3">
+              <span class="text-[11px] font-extrabold uppercase text-trade-dark block">Racha</span>
+              <span class="font-display font-black text-lg text-ink mt-1 block">🔥 ${state.streak}d</span>
+            </div>
+            <div class="bg-invest-soft border-2 border-invest-border rounded-2xl p-3">
+              <span class="text-[11px] font-extrabold uppercase text-invest-dark block">Precisión</span>
+              <span class="font-display font-black text-lg text-ink mt-1 block">${accuracy}%</span>
+            </div>
+          </div>
+
+          <!-- Notificación de Liga Sabas Nieves -->
+          <div class="bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 mb-6">
+            <p class="font-display font-extrabold text-sm text-ink">
+              🏆 Liga Sabas Nieves · Puesto ${newRank} de 30
+            </p>
+            <p class="text-xs text-gray-500 mt-1">
+              ${rankImproved
+                ? `¡Subiste del puesto #${state.previousRank} al #${newRank} con tus nuevos XP!`
+                : 'Sigue sumando XP para escalar al podio de tu liga.'}
+            </p>
+          </div>
+
+          <button type="button" onclick="returnToPath()"
+            class="tactile-btn w-full py-4 rounded-2xl font-display font-extrabold text-lg text-white ${btnBg}">
+            Volver al camino
+          </button>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 7. CONTROLADORES DE INTERACCIÓN Y LÓGICA DEL JUEGO
+    // =========================================================================
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function selectCourse(courseId) {
+      SoundFX.tap();
+      state.selectedCourse = courseId;
+      saveState();
+      render();
+    }
+
+    function startSelectedCourse() {
+      SoundFX.tap();
+      state.screen = 'path';
+      saveState();
+      render();
+    }
+
+    function goToOnboarding() {
+      SoundFX.tap();
+      state.screen = 'onboarding';
+      render();
+    }
+
+    function quickSwitchCourse() {
+      SoundFX.tap();
+      state.selectedCourse = state.selectedCourse === 'invertir' ? 'tradear' : 'invertir';
+      saveState();
+      render();
+    }
+
+    function startLesson(courseId, lessonIndex) {
+      SoundFX.tap();
+      const course = COURSES[courseId];
+      const lesson = course.lessons[lessonIndex];
+
+      // Preparar cola de 3 preguntas con opciones mezcladas
+      const queue = lesson.questions.map((item, idx) => ({
+        ...item,
+        uid: `${lesson.id}-q${idx}`,
+        shuffledOptions: shuffleArray(item.options)
+      }));
+
+      state.activeLesson = { courseId, lessonIndex };
+      state.questionQueue = queue;
+      state.currentQIndex = 0;
+      state.totalInitialQuestions = queue.length;
+      state.firstTryCorrectCount = 0;
+      state.wrongOnceSet = new Set();
+      state.selectedOption = null;
+      state.answerState = 'idle';
+      state.previousRank = getLeagueRank(state.xp);
+      state.screen = 'lesson';
+      render();
+    }
+
+    function chooseOption(shuffledIdx) {
+      if (state.answerState !== 'idle') return;
+      SoundFX.tap();
+      const currentItem = state.questionQueue[state.currentQIndex];
+      state.selectedOption = currentItem.shuffledOptions[shuffledIdx];
+      render();
+    }
+
+    function checkAnswer() {
+      if (!state.selectedOption || state.answerState !== 'idle') return;
+      const currentItem = state.questionQueue[state.currentQIndex];
+      const isCorrect = state.selectedOption === currentItem.correct;
+
+      if (isCorrect) {
+        SoundFX.correct();
+        state.answerState = 'correct';
+        if (!state.wrongOnceSet.has(currentItem.uid)) {
+          state.firstTryCorrectCount += 1;
+        }
+      } else {
+        SoundFX.wrong();
+        state.answerState = 'wrong';
+        state.wrongOnceSet.add(currentItem.uid);
+        // Re-encolar al final de la lección para reforzar el aprendizaje
+        state.questionQueue.push({
+          ...currentItem,
+          shuffledOptions: shuffleArray(currentItem.options)
+        });
+      }
+      render();
+    }
+
+    function nextQuestion() {
+      SoundFX.tap();
+      if (state.currentQIndex + 1 < state.questionQueue.length) {
+        state.currentQIndex += 1;
+        state.selectedOption = null;
+        state.answerState = 'idle';
+        render();
+      } else {
+        completeCurrentLesson();
+      }
+    }
+
+    function completeCurrentLesson() {
+      SoundFX.complete();
+      const { courseId, lessonIndex } = state.activeLesson;
+      const lesson = COURSES[courseId].lessons[lessonIndex];
+
+      // +30 XP por lección completada (10 XP por cada pregunta dominada)
+      const earned = 30;
+      state.lastEarnedXP = earned;
+      state.xp += earned;
+
+      if (!state.completedLessons[courseId].includes(lesson.id)) {
+        state.completedLessons[courseId].push(lesson.id);
+        // Incrementar racha si es la primera lección nueva completada
+        if (state.streak === 5) state.streak = 6;
+      }
+
+      saveState();
+      state.screen = 'summary';
+      render();
+    }
+
+    function returnToPath() {
+      SoundFX.tap();
+      state.screen = 'path';
+      render();
+    }
+
+    // Modal de salida de lección
+    function requestExitLesson() {
+      SoundFX.tap();
+      const modal = document.getElementById('exit-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeExitModal() {
+      SoundFX.tap();
+      const modal = document.getElementById('exit-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmExitLesson() {
+      closeExitModal();
+      state.screen = 'path';
+      render();
+    }
+
+    // Controles de la barra superior de Testers
+    function toggleSound() {
+      SoundFX.enabled = !SoundFX.enabled;
+      if (SoundFX.enabled) SoundFX.tap();
+      updateTopTesterBar();
+      showToast(SoundFX.enabled ? '🔊' : '🔇', SoundFX.enabled ? 'Sonidos activados' : 'Sonidos silenciados');
+    }
+
+    function toggleTesterUnlock() {
+      SoundFX.tap();
+      state.testerUnlockAll = !state.testerUnlockAll;
+      saveState();
+      render();
+      showToast(
+        state.testerUnlockAll ? '🔓' : '🔒',
+        state.testerUnlockAll ? 'Modo Tester: Todas las lecciones desbloqueadas' : 'Modo normal secuencial activado'
+      );
+    }
+
+    // =========================================================================
+    // 8. MODAL DE FEEDBACK PARA TESTERS (EXPORTABLE A WHATSAPP)
+    // =========================================================================
+    function openFeedbackModal() {
+      SoundFX.tap();
+      const modal = document.getElementById('feedback-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      updateFeedbackPreview();
+    }
+
+    function closeFeedbackModal() {
+      SoundFX.tap();
+      const modal = document.getElementById('feedback-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function setFeedbackRating(rate) {
+      SoundFX.tap();
+      state.feedbackRating = rate;
+      document.querySelectorAll('.rate-btn').forEach(btn => {
+        const val = Number(btn.dataset.rate);
+        if (val === rate) {
+          btn.classList.add('bg-prize-soft', 'border-prize');
+          btn.classList.remove('bg-white');
+        } else {
+          btn.classList.remove('bg-prize-soft', 'border-prize');
+          btn.classList.add('bg-white');
+        }
+      });
+      updateFeedbackPreview();
+    }
+
+    function setFeedbackCourse(courseName) {
+      SoundFX.tap();
+      state.feedbackCourse = courseName;
+      document.querySelectorAll('.fcourse-btn').forEach(btn => {
+        if (btn.dataset.fcourse === courseName) {
+          btn.classList.add('bg-invest-soft', 'border-invest');
+          btn.classList.remove('bg-white');
+        } else {
+          btn.classList.remove('bg-invest-soft', 'border-invest');
+          btn.classList.add('bg-white');
+        }
+      });
+      updateFeedbackPreview();
+    }
+
+    function buildFeedbackSummaryText() {
+      const commentEl = document.getElementById('feedback-comment');
+      const comment = commentEl ? commentEl.value.trim() : '';
+      const totalDone = state.completedLessons.invertir.length + state.completedLessons.tradear.length;
+      return `🧪 *Feedback Kairos JC*\n` +
+        `⭐ Interfaz y experiencia: ${state.feedbackRating}/5\n` +
+        `📚 Curso favorito: ${state.feedbackCourse}\n` +
+        `🎯 Progreso en prueba: ${totalDone} lecciones (${state.xp} XP)\n` +
+        `💬 Comentario: ${comment || '¡Muy intuitiva y fácil de entender!'}`;
+    }
+
+    function updateFeedbackPreview() {
+      const previewEl = document.getElementById('feedback-preview');
+      if (previewEl) {
+        previewEl.textContent = buildFeedbackSummaryText();
+      }
+    }
+
+    function copyFeedbackForWhatsApp() {
+      SoundFX.correct();
+      const text = buildFeedbackSummaryText();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('📋', '¡Opinión copiada! Listo para pegar en WhatsApp');
+          closeFeedbackModal();
+        }).catch(() => fallbackCopyText(text));
+      } else {
+        fallbackCopyText(text);
+      }
+    }
+
+    function fallbackCopyText(text) {
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      document.body.appendChild(temp);
+      temp.select();
+      try {
+        document.execCommand('copy');
+        showToast('📋', '¡Opinión copiada! Listo para pegar en WhatsApp');
+        closeFeedbackModal();
+      } catch (e) {
+        showToast('ℹ️', 'Selecciona y copia el resumen del recuadro');
+      }
+      document.body.removeChild(temp);
+    }
+
+    let toastTimeout = null;
+    function showToast(icon, message) {
+      const banner = document.getElementById('toast-banner');
+      document.getElementById('toast-icon').textContent = icon;
+      document.getElementById('toast-text').textContent = message;
+      banner.classList.remove('opacity-0');
+      banner.classList.add('opacity-100');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        banner.classList.remove('opacity-100');
+        banner.classList.add('opacity-0');
+      }, 2600);
+    }
+
+    // Escuchar escritura en comentario de feedback en tiempo real
+    document.addEventListener('input', (e) => {
+      if (e.target && e.target.id === 'feedback-comment') {
+        updateFeedbackPreview();
+      }
+    });
+
+    // Inicializar app
+    loadState();
+    render();
+  </script>
+</body>
+</html>
